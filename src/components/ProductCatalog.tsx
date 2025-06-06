@@ -1,6 +1,6 @@
 
-import { useState, useMemo } from "react";
-import { Search, Filter, Grid, List } from "lucide-react";
+import { useState, useMemo, useEffect, useRef } from "react";
+import { Search, Filter } from "lucide-react";
 import ProductCard from "./ProductCard";
 import LocationSection from "./LocationSection";
 import ReviewsSection from "./ReviewsSection";
@@ -125,6 +125,11 @@ const ProductCatalog = () => {
   const [selectedCategory, setSelectedCategory] = useState("Todos");
   const [activeSection, setActiveSection] = useState("verao2025");
 
+  // Refs para as seções
+  const verao2025Ref = useRef<HTMLDivElement>(null);
+  const promocoesRef = useRef<HTMLDivElement>(null);
+  const maisVendidosRef = useRef<HTMLDivElement>(null);
+
   const filteredProducts = useMemo(() => {
     return swimwearProducts.filter(product => {
       const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -139,10 +144,56 @@ const ProductCatalog = () => {
   };
 
   const sections = [
-    { id: "verao2025", title: "🌞 Coleção Verão 2025", subtitle: "As mais novas tendências para a temporada" },
-    { id: "promocoes", title: "🔥 Promoções", subtitle: "Ofertas imperdíveis por tempo limitado" },
-    { id: "maisVendidos", title: "⭐ Mais Vendidos", subtitle: "Os favoritos das nossas clientes" }
+    { 
+      id: "verao2025", 
+      title: "🌞 Coleção Verão 2025", 
+      subtitle: "As mais novas tendências para a temporada",
+      ref: verao2025Ref
+    },
+    { 
+      id: "promocoes", 
+      title: "🔥 Promoções", 
+      subtitle: "Ofertas imperdíveis por tempo limitado",
+      ref: promocoesRef
+    },
+    { 
+      id: "maisVendidos", 
+      title: "⭐ Mais Vendidos", 
+      subtitle: "Os favoritos das nossas clientes",
+      ref: maisVendidosRef
+    }
   ];
+
+  // Scroll spy effect
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollPosition = window.scrollY + 200; // Offset para melhor detecção
+
+      sections.forEach((section) => {
+        const element = section.ref.current;
+        if (element) {
+          const { offsetTop, offsetHeight } = element;
+          if (scrollPosition >= offsetTop && scrollPosition < offsetTop + offsetHeight) {
+            setActiveSection(section.id);
+          }
+        }
+      });
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [sections]);
+
+  // Função para navegar suavemente até a seção
+  const scrollToSection = (sectionId: string) => {
+    const section = sections.find(s => s.id === sectionId);
+    if (section?.ref.current) {
+      section.ref.current.scrollIntoView({ 
+        behavior: 'smooth',
+        block: 'start'
+      });
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 pt-24 pb-12">
@@ -191,13 +242,13 @@ const ProductCatalog = () => {
         </div>
 
         {/* Section Navigation */}
-        <div className="flex justify-center mb-8">
+        <div className="flex justify-center mb-8 sticky top-20 z-40">
           <div className="bg-white rounded-2xl p-2 shadow-lg border border-border">
             <div className="flex space-x-2">
               {sections.map((section) => (
                 <button
                   key={section.id}
-                  onClick={() => setActiveSection(section.id)}
+                  onClick={() => scrollToSection(section.id)}
                   className={`px-6 py-3 rounded-xl font-medium transition-all duration-200 ${
                     activeSection === section.id
                       ? 'bg-primary text-primary-foreground shadow-md'
@@ -211,41 +262,39 @@ const ProductCatalog = () => {
           </div>
         </div>
 
-        {/* Active Section */}
+        {/* All Sections */}
         {sections.map((section) => (
-          activeSection === section.id && (
-            <div key={section.id} className="mb-16">
-              <div className="text-center mb-8">
-                <h2 className="text-3xl font-bold text-gradient mb-2">
-                  {section.title}
-                </h2>
+          <div key={section.id} ref={section.ref} className="mb-16 scroll-mt-32">
+            <div className="text-center mb-8">
+              <h2 className="text-3xl font-bold text-gradient mb-2">
+                {section.title}
+              </h2>
+              <p className="text-muted-foreground">
+                {section.subtitle}
+              </p>
+            </div>
+
+            <div className="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+              {getProductsBySection(section.id).map((product) => (
+                <ProductCard
+                  key={product.id}
+                  {...product}
+                />
+              ))}
+            </div>
+
+            {getProductsBySection(section.id).length === 0 && (
+              <div className="text-center py-12">
+                <div className="text-6xl mb-4">🔍</div>
+                <h3 className="text-2xl font-bold text-foreground mb-2">
+                  Nenhum produto encontrado
+                </h3>
                 <p className="text-muted-foreground">
-                  {section.subtitle}
+                  Tente ajustar seus filtros ou termo de busca
                 </p>
               </div>
-
-              <div className="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-                {getProductsBySection(section.id).map((product) => (
-                  <ProductCard
-                    key={product.id}
-                    {...product}
-                  />
-                ))}
-              </div>
-
-              {getProductsBySection(section.id).length === 0 && (
-                <div className="text-center py-12">
-                  <div className="text-6xl mb-4">🔍</div>
-                  <h3 className="text-2xl font-bold text-foreground mb-2">
-                    Nenhum produto encontrado
-                  </h3>
-                  <p className="text-muted-foreground">
-                    Tente ajustar seus filtros ou termo de busca
-                  </p>
-                </div>
-              )}
-            </div>
-          )
+            )}
+          </div>
         ))}
 
         {/* Location Section */}
