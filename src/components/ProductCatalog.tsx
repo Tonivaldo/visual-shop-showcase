@@ -2,92 +2,131 @@
 import { useState, useMemo } from "react";
 import { Search, Filter, Grid, List } from "lucide-react";
 import ProductCard from "./ProductCard";
+import LocationSection from "./LocationSection";
+import ReviewsSection from "./ReviewsSection";
 
-// Dados de exemplo dos produtos
-const sampleProducts = [
+// Produtos de moda praia
+const swimwearProducts = [
+  // Coleção Verão 2025
   {
     id: "1",
-    name: "Bolsa Elegante Premium",
-    price: "R$ 199,90",
-    description: "Bolsa de couro sintético de alta qualidade, perfeita para o dia a dia e ocasiões especiais.",
+    name: "Biquíni Tropical Paradise",
+    price: "R$ 149,90",
+    description: "Biquíni com estampa tropical vibrante, top com bojo e calcinha de amarração lateral.",
     images: [
-      "https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?w=400&h=400&fit=crop",
-      "https://images.unsplash.com/photo-1721322800607-8c38375eef04?w=400&h=400&fit=crop",
-      "https://images.unsplash.com/photo-1582562124811-c09040d0a901?w=400&h=400&fit=crop"
+      "https://images.unsplash.com/photo-1544966503-7cc5ac882d5f?w=400&h=400&fit=crop",
+      "https://images.unsplash.com/photo-1594736797933-d0f06ba14d8f?w=400&h=400&fit=crop",
+      "https://images.unsplash.com/photo-1509631179647-0177331693ae?w=400&h=400&fit=crop"
     ],
-    category: "Bolsas"
+    category: "Biquínis",
+    section: "verao2025"
   },
   {
     id: "2",
-    name: "Conjunto de Mesa Moderna",
-    price: "R$ 899,90",
-    description: "Mesa de centro moderna com design contemporâneo, ideal para salas de estar elegantes.",
+    name: "Maiô Ocean Dreams",
+    price: "R$ 199,90",
+    description: "Maiô elegante com recortes estratégicos e proteção UV50+. Perfeito para o verão.",
     images: [
-      "https://images.unsplash.com/photo-1721322800607-8c38375eef04?w=400&h=400&fit=crop",
-      "https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?w=400&h=400&fit=crop",
-      "https://images.unsplash.com/photo-1582562124811-c09040d0a901?w=400&h=400&fit=crop"
+      "https://images.unsplash.com/photo-1594736797933-d0f06ba14d8f?w=400&h=400&fit=crop",
+      "https://images.unsplash.com/photo-1509631179647-0177331693ae?w=400&h=400&fit=crop",
+      "https://images.unsplash.com/photo-1544966503-7cc5ac882d5f?w=400&h=400&fit=crop"
     ],
-    category: "Móveis"
+    category: "Maiôs",
+    section: "verao2025"
   },
   {
     id: "3",
-    name: "Acessório Pet Comfort",
-    price: "R$ 79,90",
-    description: "Acessório confortável para pets, feito com materiais macios e duráveis.",
+    name: "Biquíni Sunset Vibes",
+    price: "R$ 139,90",
+    description: "Biquíni tie-dye com cores do pôr do sol, top triangular e calcinha brasileira.",
     images: [
-      "https://images.unsplash.com/photo-1582562124811-c09040d0a901?w=400&h=400&fit=crop",
-      "https://images.unsplash.com/photo-1487252665478-49b61b47f302?w=400&h=400&fit=crop",
-      "https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?w=400&h=400&fit=crop"
+      "https://images.unsplash.com/photo-1509631179647-0177331693ae?w=400&h=400&fit=crop",
+      "https://images.unsplash.com/photo-1544966503-7cc5ac882d5f?w=400&h=400&fit=crop",
+      "https://images.unsplash.com/photo-1594736797933-d0f06ba14d8f?w=400&h=400&fit=crop"
     ],
-    category: "Pet"
+    category: "Biquínis",
+    section: "verao2025"
   },
+
+  // Promoções
   {
     id: "4",
-    name: "Decoração Artesanal",
-    price: "R$ 149,90",
-    description: "Peça decorativa artesanal única, perfeita para dar um toque especial ao seu ambiente.",
+    name: "Maiô Classic Black",
+    price: "R$ 89,90",
+    description: "Maiô clássico preto com detalhes dourados. Elegância atemporal com desconto especial.",
     images: [
-      "https://images.unsplash.com/photo-1487252665478-49b61b47f302?w=400&h=400&fit=crop",
-      "https://images.unsplash.com/photo-1721322800607-8c38375eef04?w=400&h=400&fit=crop",
-      "https://images.unsplash.com/photo-1582562124811-c09040d0a901?w=400&h=400&fit=crop"
+      "https://images.unsplash.com/photo-1544966503-7cc5ac882d5f?w=400&h=400&fit=crop",
+      "https://images.unsplash.com/photo-1509631179647-0177331693ae?w=400&h=400&fit=crop",
+      "https://images.unsplash.com/photo-1594736797933-d0f06ba14d8f?w=400&h=400&fit=crop"
     ],
-    category: "Decoração"
+    category: "Maiôs",
+    section: "promocoes"
   },
   {
     id: "5",
-    name: "Kit Gourmet Premium",
-    price: "R$ 259,90",
-    description: "Kit completo para experiências gastronômicas especiais, com produtos selecionados.",
+    name: "Biquíni Flores do Campo",
+    price: "R$ 79,90",
+    description: "Biquíni floral delicado com top de bojo removível. Promoção por tempo limitado!",
     images: [
-      "https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?w=400&h=400&fit=crop",
-      "https://images.unsplash.com/photo-1487252665478-49b61b47f302?w=400&h=400&fit=crop",
-      "https://images.unsplash.com/photo-1721322800607-8c38375eef04?w=400&h=400&fit=crop"
+      "https://images.unsplash.com/photo-1594736797933-d0f06ba14d8f?w=400&h=400&fit=crop",
+      "https://images.unsplash.com/photo-1544966503-7cc5ac882d5f?w=400&h=400&fit=crop",
+      "https://images.unsplash.com/photo-1509631179647-0177331693ae?w=400&h=400&fit=crop"
     ],
-    category: "Gourmet"
+    category: "Biquínis",
+    section: "promocoes"
   },
+
+  // Mais Vendidos
   {
     id: "6",
-    name: "Sofá Confort Style",
-    price: "R$ 1.299,90",
-    description: "Sofá confortável com design moderno, ideal para momentos de relaxamento em casa.",
+    name: "Biquíni Brazilian Style",
+    price: "R$ 169,90",
+    description: "O favorito das clientes! Biquíni com top cortininha e calcinha fio dental.",
     images: [
-      "https://images.unsplash.com/photo-1721322800607-8c38375eef04?w=400&h=400&fit=crop",
-      "https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?w=400&h=400&fit=crop",
-      "https://images.unsplash.com/photo-1582562124811-c09040d0a901?w=400&h=400&fit=crop"
+      "https://images.unsplash.com/photo-1509631179647-0177331693ae?w=400&h=400&fit=crop",
+      "https://images.unsplash.com/photo-1594736797933-d0f06ba14d8f?w=400&h=400&fit=crop",
+      "https://images.unsplash.com/photo-1544966503-7cc5ac882d5f?w=400&h=400&fit=crop"
     ],
-    category: "Móveis"
+    category: "Biquínis",
+    section: "maisVendidos"
+  },
+  {
+    id: "7",
+    name: "Maiô Goddess",
+    price: "R$ 219,90",
+    description: "Maiô luxuoso com aplicações de pedrarias. O mais vendido da temporada!",
+    images: [
+      "https://images.unsplash.com/photo-1544966503-7cc5ac882d5f?w=400&h=400&fit=crop",
+      "https://images.unsplash.com/photo-1509631179647-0177331693ae?w=400&h=400&fit=crop",
+      "https://images.unsplash.com/photo-1594736797933-d0f06ba14d8f?w=400&h=400&fit=crop"
+    ],
+    category: "Maiôs",
+    section: "maisVendidos"
+  },
+  {
+    id: "8",
+    name: "Biquíni Neon Beach",
+    price: "R$ 159,90",
+    description: "Biquíni neon que brilha na praia! Top com franzido e calcinha de lacinho.",
+    images: [
+      "https://images.unsplash.com/photo-1594736797933-d0f06ba14d8f?w=400&h=400&fit=crop",
+      "https://images.unsplash.com/photo-1544966503-7cc5ac882d5f?w=400&h=400&fit=crop",
+      "https://images.unsplash.com/photo-1509631179647-0177331693ae?w=400&h=400&fit=crop"
+    ],
+    category: "Biquínis",
+    section: "maisVendidos"
   }
 ];
 
-const categories = ["Todos", "Bolsas", "Móveis", "Pet", "Decoração", "Gourmet"];
+const categories = ["Todos", "Biquínis", "Maiôs"];
 
 const ProductCatalog = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("Todos");
-  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  const [activeSection, setActiveSection] = useState("verao2025");
 
   const filteredProducts = useMemo(() => {
-    return sampleProducts.filter(product => {
+    return swimwearProducts.filter(product => {
       const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                           product.description.toLowerCase().includes(searchTerm.toLowerCase());
       const matchesCategory = selectedCategory === "Todos" || product.category === selectedCategory;
@@ -95,16 +134,26 @@ const ProductCatalog = () => {
     });
   }, [searchTerm, selectedCategory]);
 
+  const getProductsBySection = (section: string) => {
+    return filteredProducts.filter(product => product.section === section);
+  };
+
+  const sections = [
+    { id: "verao2025", title: "🌞 Coleção Verão 2025", subtitle: "As mais novas tendências para a temporada" },
+    { id: "promocoes", title: "🔥 Promoções", subtitle: "Ofertas imperdíveis por tempo limitado" },
+    { id: "maisVendidos", title: "⭐ Mais Vendidos", subtitle: "Os favoritos das nossas clientes" }
+  ];
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 pt-24 pb-12">
       <div className="container mx-auto px-4">
         {/* Hero Section */}
         <div className="text-center mb-12">
           <h1 className="text-4xl md:text-5xl font-bold text-gradient mb-4">
-            Nossos Produtos
+            Moda Praia Julia Paz
           </h1>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Descubra nossa coleção cuidadosamente selecionada de produtos premium
+            Biquínis e maiôs que realçam sua beleza natural. Qualidade, estilo e conforto em cada peça.
           </p>
         </div>
 
@@ -138,69 +187,86 @@ const ProductCatalog = () => {
                 ))}
               </select>
             </div>
+          </div>
+        </div>
 
-            {/* View Mode Toggle */}
-            <div className="flex items-center space-x-2 bg-muted rounded-xl p-1">
-              <button
-                onClick={() => setViewMode("grid")}
-                className={`p-2 rounded-lg transition-colors duration-200 ${
-                  viewMode === "grid" ? 'bg-white shadow-sm text-primary' : 'text-muted-foreground hover:text-foreground'
-                }`}
-              >
-                <Grid className="w-5 h-5" />
-              </button>
-              <button
-                onClick={() => setViewMode("list")}
-                className={`p-2 rounded-lg transition-colors duration-200 ${
-                  viewMode === "list" ? 'bg-white shadow-sm text-primary' : 'text-muted-foreground hover:text-foreground'
-                }`}
-              >
-                <List className="w-5 h-5" />
-              </button>
+        {/* Section Navigation */}
+        <div className="flex justify-center mb-8">
+          <div className="bg-white rounded-2xl p-2 shadow-lg border border-border">
+            <div className="flex space-x-2">
+              {sections.map((section) => (
+                <button
+                  key={section.id}
+                  onClick={() => setActiveSection(section.id)}
+                  className={`px-6 py-3 rounded-xl font-medium transition-all duration-200 ${
+                    activeSection === section.id
+                      ? 'bg-primary text-primary-foreground shadow-md'
+                      : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+                  }`}
+                >
+                  {section.title.split(' ').slice(1).join(' ')}
+                </button>
+              ))}
             </div>
           </div>
         </div>
 
-        {/* Products Grid */}
-        <div className={`grid gap-6 ${
-          viewMode === "grid" 
-            ? "grid-cols-1 md:grid-cols-2 lg:grid-cols-3" 
-            : "grid-cols-1 max-w-4xl mx-auto"
-        }`}>
-          {filteredProducts.map((product) => (
-            <ProductCard
-              key={product.id}
-              {...product}
-            />
-          ))}
-        </div>
+        {/* Active Section */}
+        {sections.map((section) => (
+          activeSection === section.id && (
+            <div key={section.id} className="mb-16">
+              <div className="text-center mb-8">
+                <h2 className="text-3xl font-bold text-gradient mb-2">
+                  {section.title}
+                </h2>
+                <p className="text-muted-foreground">
+                  {section.subtitle}
+                </p>
+              </div>
 
-        {/* Empty State */}
-        {filteredProducts.length === 0 && (
-          <div className="text-center py-12">
-            <div className="text-6xl mb-4">🔍</div>
-            <h3 className="text-2xl font-bold text-foreground mb-2">
-              Nenhum produto encontrado
-            </h3>
-            <p className="text-muted-foreground">
-              Tente ajustar seus filtros ou termo de busca
-            </p>
-          </div>
-        )}
+              <div className="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+                {getProductsBySection(section.id).map((product) => (
+                  <ProductCard
+                    key={product.id}
+                    {...product}
+                  />
+                ))}
+              </div>
+
+              {getProductsBySection(section.id).length === 0 && (
+                <div className="text-center py-12">
+                  <div className="text-6xl mb-4">🔍</div>
+                  <h3 className="text-2xl font-bold text-foreground mb-2">
+                    Nenhum produto encontrado
+                  </h3>
+                  <p className="text-muted-foreground">
+                    Tente ajustar seus filtros ou termo de busca
+                  </p>
+                </div>
+              )}
+            </div>
+          )
+        ))}
+
+        {/* Location Section */}
+        <LocationSection />
+
+        {/* Reviews Section */}
+        <ReviewsSection />
 
         {/* Contact CTA */}
         <div className="mt-16 text-center">
           <div className="bg-gradient-primary rounded-2xl p-8 text-white">
             <h2 className="text-3xl font-bold mb-4">
-              Não encontrou o que procurava?
+              Ficou com alguma dúvida?
             </h2>
             <p className="text-xl mb-6 opacity-90">
-              Entre em contato conosco! Temos muito mais produtos disponíveis.
+              Entre em contato conosco! Estamos aqui para te ajudar a escolher o look perfeito.
             </p>
             <button
               onClick={() => {
                 const phoneNumber = "5511999999999";
-                const message = "Olá! Gostaria de ver mais produtos da Julia Paz.";
+                const message = "Olá! Gostaria de mais informações sobre os produtos da Julia Paz.";
                 const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
                 window.open(whatsappUrl, '_blank');
               }}
