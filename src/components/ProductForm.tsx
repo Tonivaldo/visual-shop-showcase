@@ -6,7 +6,7 @@ import { Label } from "./ui/label";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "./ui/form";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { useForm } from "react-hook-form";
-import { Plus, X, Upload } from "lucide-react";
+import { Plus, X, Upload, ImageIcon } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface ProductFormData {
@@ -15,12 +15,12 @@ interface ProductFormData {
   description: string;
   category: string;
   section: string;
-  images: string[];
+  images: File[];
 }
 
 const ProductForm = () => {
-  const [images, setImages] = useState<string[]>([]);
-  const [newImageUrl, setNewImageUrl] = useState("");
+  const [images, setImages] = useState<File[]>([]);
+  const [dragActive, setDragActive] = useState(false);
   const { toast } = useToast();
 
   const form = useForm<ProductFormData>({
@@ -41,12 +41,49 @@ const ProductForm = () => {
     { value: "maisVendidos", label: "Mais Vendidos" },
   ];
 
-  const addImage = () => {
-    if (newImageUrl.trim() && !images.includes(newImageUrl.trim())) {
-      const updatedImages = [...images, newImageUrl.trim()];
+  const handleDrag = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.type === "dragenter" || e.type === "dragover") {
+      setDragActive(true);
+    } else if (e.type === "dragleave") {
+      setDragActive(false);
+    }
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragActive(false);
+
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      handleFiles(e.dataTransfer.files);
+    }
+  };
+
+  const handleFiles = (fileList: FileList) => {
+    const newFiles = Array.from(fileList).filter(file => file.type.startsWith('image/'));
+    const remainingSlots = 3 - images.length;
+    const filesToAdd = newFiles.slice(0, remainingSlots);
+    
+    if (newFiles.length > remainingSlots) {
+      toast({
+        title: "Limite de imagens excedido",
+        description: `Você pode adicionar no máximo 3 imagens. ${newFiles.length - remainingSlots} arquivo(s) foram ignorados.`,
+        variant: "destructive"
+      });
+    }
+
+    if (filesToAdd.length > 0) {
+      const updatedImages = [...images, ...filesToAdd];
       setImages(updatedImages);
       form.setValue("images", updatedImages);
-      setNewImageUrl("");
+    }
+  };
+
+  const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      handleFiles(e.target.files);
     }
   };
 
@@ -59,7 +96,7 @@ const ProductForm = () => {
   const onSubmit = (data: ProductFormData) => {
     const productData = {
       ...data,
-      images,
+      images: images.map(file => URL.createObjectURL(file)),
       id: Date.now().toString(),
     };
     
@@ -73,7 +110,6 @@ const ProductForm = () => {
     // Reset form
     form.reset();
     setImages([]);
-    setNewImageUrl("");
   };
 
   return (
@@ -203,25 +239,67 @@ const ProductForm = () => {
 
                 {/* Imagens */}
                 <div className="space-y-4">
-                  <Label className="text-foreground font-medium">Imagens do Produto</Label>
+                  <Label className="text-foreground font-medium">
+                    Imagens do Produto (máximo 3)
+                  </Label>
                   
-                  {/* Add new image */}
-                  <div className="flex gap-2">
-                    <Input
-                      placeholder="URL da imagem"
-                      value={newImageUrl}
-                      onChange={(e) => setNewImageUrl(e.target.value)}
-                      className="flex-1 border-border focus:border-primary focus:ring-primary/20"
+                  {/* Drag & Drop Area */}
+                  <div
+                    className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
+                      dragActive 
+                        ? "border-primary bg-primary/5" 
+                        : "border-border hover:border-primary/50"
+                    }`}
+                    onDragEnter={handleDrag}
+                    onDragLeave={handleDrag}
+                    onDragOver={handleDrag}
+                    onDrop={handleDrop}
+                  >
+                    <input
+                      type="file"
+                      id="imageInput"
+                      multiple
+                      accept="image/*"
+                      onChange={handleFileInput}
+                      className="hidden"
+                      disabled={images.length >= 3}
                     />
+                    
+                    {images.length < 3 ? (
+                      <>
+                        <Upload className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
+                        <p className="text-muted-foreground text-sm mb-2">
+                          Arraste e solte suas imagens aqui ou
+                        </p>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => document.getElementById('imageInput')?.click()}
+                          className="mx-auto"
+                        >
+                          <ImageIcon className="w-4 h-4 mr-2" />
+                          Selecionar Imagens
+                        </Button>
+                      </>
+                    ) : (
+                      <p className="text-muted-foreground text-sm">
+                        Limite máximo de 3 imagens atingido
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Botão adicional para mais imagens */}
+                  {images.length > 0 && images.length < 3 && (
                     <Button
                       type="button"
-                      onClick={addImage}
-                      size="icon"
-                      className="bg-primary hover:bg-primary/90"
+                      variant="outline"
+                      onClick={() => document.getElementById('imageInput')?.click()}
+                      className="w-full"
                     >
-                      <Plus className="w-4 h-4" />
+                      <Plus className="w-4 h-4 mr-2" />
+                      Adicionar Mais Imagens ({images.length}/3)
                     </Button>
-                  </div>
+                  )}
 
                   {/* Image preview */}
                   {images.length > 0 && (
@@ -229,7 +307,7 @@ const ProductForm = () => {
                       {images.map((image, index) => (
                         <div key={index} className="relative group">
                           <img
-                            src={image}
+                            src={URL.createObjectURL(image)}
                             alt={`Preview ${index + 1}`}
                             className="w-full h-24 object-cover rounded-lg border border-border"
                           />
@@ -242,15 +320,6 @@ const ProductForm = () => {
                           </button>
                         </div>
                       ))}
-                    </div>
-                  )}
-
-                  {images.length === 0 && (
-                    <div className="border-2 border-dashed border-border rounded-lg p-8 text-center">
-                      <Upload className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
-                      <p className="text-muted-foreground text-sm">
-                        Adicione URLs das imagens do produto
-                      </p>
                     </div>
                   )}
                 </div>
