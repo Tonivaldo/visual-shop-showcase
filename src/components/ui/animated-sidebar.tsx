@@ -2,7 +2,6 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { Link } from "react-router-dom";
 import React, { useState, createContext, useContext } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Menu, X } from "lucide-react";
@@ -54,7 +53,7 @@ export const SidebarProvider = ({
   );
 };
 
-export const AnimatedSidebar = ({
+export const Sidebar = ({
   children,
   open,
   setOpen,
@@ -76,7 +75,7 @@ export const SidebarBody = (props: React.ComponentProps<typeof motion.div>) => {
   return (
     <>
       <DesktopSidebar {...props} />
-      <MobileSidebar {...(props as React.ComponentProps<"div">)} />
+      <MobileSidebar {...props} />
     </>
   );
 };
@@ -165,8 +164,8 @@ export const SidebarLink = ({
 }) => {
   const { open, animate } = useSidebar();
   return (
-    <Link
-      to={link.href}
+    <a
+      href={link.href}
       className={cn(
         "flex items-center justify-start gap-2 group/sidebar py-2",
         className
@@ -183,6 +182,6 @@ export const SidebarLink = ({
       >
         {link.label}
       </motion.span>
-    </Link>
+    </a>
   );
 };
