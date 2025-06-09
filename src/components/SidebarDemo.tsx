@@ -1,7 +1,7 @@
 
 "use client";
 import React, { useState } from "react";
-import { AnimatedSidebar, SidebarBody, SidebarLink } from "@/components/ui/animated-sidebar";
+import { Sidebar, SidebarBody, SidebarLink } from "@/components/ui/animated-sidebar";
 import { LayoutDashboard, UserCog, Settings, LogOut } from "lucide-react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -46,7 +46,7 @@ export function SidebarDemo() {
         "h-screen"
       )}
     >
-      <AnimatedSidebar open={open} setOpen={setOpen}>
+      <Sidebar open={open} setOpen={setOpen}>
         <SidebarBody className="justify-between gap-10">
           <div className="flex flex-col flex-1 overflow-y-auto overflow-x-hidden">
             {open ? <Logo /> : <LogoIcon />}
@@ -72,7 +72,7 @@ export function SidebarDemo() {
             />
           </div>
         </SidebarBody>
-      </AnimatedSidebar>
+      </Sidebar>
       <Dashboard />
     </div>
   );
